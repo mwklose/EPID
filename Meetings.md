@@ -28,4 +28,4 @@ If time:
         - Also allows for stronger control of shading
 
 
-Next step: Seaborn heatmaps as way to go forward. 
+Next step: Seaborn heatmaps as way to go forward.  
