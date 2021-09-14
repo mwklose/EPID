@@ -14,6 +14,14 @@ import seaborn as sns
 
 from typing import Union, Tuple  # Import union, tuple type hinting
 
+
+def normal_ppf_rd(location: pd.Series, scale: pd.Series, query: float) -> pd.Series:
+    # Something up here: maybe has to do with input values?
+
+    n = norm.ppf(location, scale, query)
+    return n
+
+
 ##########################
 def sierra_plot(
     data,
@@ -83,17 +91,9 @@ def sierra_plot(
     # Get standard deviation of each column
     df["sd"] = (data[ucl] - data[xvar]) / 1.96
 
-    # Get colormap to draw with
-    gradient = "gist_yarg"
-    cmap = plt.get_cmap(gradient)
     # loop through as many steps as needed
 
-    # Initialize normal distributions
-    df["norm"] = norm(loc=df[xvar], scale=df["sd"])
-    df["ppf_low"] = df["norm"].apply(lambda x: x.ppf(0.1))
-    df["ppf_high"] = df["norm"].apply(lambda x: x.ppf(0.9))
-
-    # # Functionally not needed, but helps Shaded step function for Risk Difference confidence intervals
+    # # # Functionally not needed, but helps Shaded step function for Risk Difference confidence intervals
     ax.fill_betweenx(
         data[yvar],  # time column (no shift needed here)
         data[ucl],  # upper confidence limit
@@ -104,11 +104,14 @@ def sierra_plot(
         step="post",
     )
 
-    for a in np.arange(0.1, 0.95, 0.01):
-        df[a] = df.apply(lambda x: norm.ppf(loc=x[xvar], scale=x["sd"], q=a), axis=1)
+    for a in np.arange(0.05, 0.5, 0.01):
+        df[a] = df.apply(
+            lambda x: normal_ppf_rd(location=x[xvar], scale=x["sd"], query=a), axis=1
+        )
         df[a] = df[a].fillna(0)
         df[1 - a] = df.apply(
-            lambda x: norm.ppf(loc=x[xvar], scale=x["sd"], q=1 - a), axis=1
+            lambda x: normal_ppf_rd(location=x[xvar], scale=x["sd"], query=(1 - a)),
+            axis=1,
         )
         df[1 - a] = df[1 - a].fillna(0)
         ax.fill_betweenx(
@@ -179,53 +182,3 @@ def sierra_plot(
         },
     )
     return ax
-
-
-##########################
-# Setup data
-# Reading in data
-data = pd.read_csv("data_twister.csv")  # .csv read in and managed using pandas
-
-##########################
-# Example: Difference
-ax = sierra_plot(
-    data,
-    xvar="RD",
-    lcl="RD_LCL",
-    ucl="RD_UCL",
-    yvar="t",
-    treat_labs=["Vaccine", "Placebo"],
-)
-
-# Formatting the axes and labels
-ax.legend(loc="lower right")  # Added legend to the lower right corner of the plot
-ax.set_yticks([i for i in range(0, 113, 7)])  # Sets the y-axes tick marks
-
-plt.tight_layout()  # Sets spacing of the border of the plot
-plt.savefig(
-    "sierra_plot_python.png", format="png", dpi=600
-)  # Saves the generated figure as .png
-plt.show()  # displays the generated image
-
-# ##########################
-# # Example: Ratio
-ax = sierra_plot(
-    data,
-    xvar="RR",
-    lcl="RR_LCL",
-    ucl="RR_UCL",
-    yvar="t",
-    reference_line=1.0,
-    log_scale=True,
-    treat_labs=["Vaccine", "Placebo"],
-)
-
-# Formatting the axes and labels
-ax.legend(loc="lower right")  # Added legend to the lower right corner of the plot
-ax.set_yticks([i for i in range(0, 113, 7)])  # Sets the y-axes tick marks
-ax.set_xticks([0.1, 0.25, 1, 5, 10])  # Sets the x-axes tick marks
-ax.set_xticklabels(["0.10", "0.25", "1", "5", "10"])
-
-plt.tight_layout()  # Sets spacing of the border of the plot
-# plt.savefig("twister_plot_python.png", format='png', dpi=600)  # Saves the generated figure as .png
-plt.show()  # displays the generated image
