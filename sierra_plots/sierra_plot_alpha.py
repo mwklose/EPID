@@ -9,17 +9,26 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
-from scipy.stats import norm
+from scipy.stats import norm, lognorm
 import seaborn as sns
 
 from typing import Union, Tuple  # Import union, tuple type hinting
 
+# Function that takes a query point and returns LCL and UCL for that percentile based on a risk-difference distribution (normal)
+def norm_rd(
+    query: float, location: pd.Series, scale: pd.Series
+) -> tuple[pd.Series, pd.Series]:
 
-def normal_ppf_rd(location: pd.Series, scale: pd.Series, query: float) -> pd.Series:
-    # Something up here: maybe has to do with input values?
+    (q0, q1) = norm.interval(query, loc=location, scale=scale)
+    return (pd.Series(q0), pd.Series(q1))
 
-    n = norm.ppf(location, scale, query)
-    return n
+
+# Function that takes a query point and returns LCL and UCL for that percentile based on a risk-difference distribution (lognormal)
+def norm_rr(
+    query: float, location: pd.Series, scale: pd.Series
+) -> tuple[pd.Series, pd.Series]:
+    (q0, q1) = lognorm.interval(query, loc=location, scale=scale)
+    return (pd.Series(q0), pd.Series(q1))
 
 
 ##########################
@@ -36,6 +45,7 @@ def sierra_plot(
     treat_labs=("Treatment", "Placebo"),
     treat_labs_top=True,
     treat_labs_spacing="\t\t\t",
+    interval_func: callable = norm,
 ):
     """Function to generate a twister plot from input data. Returns matplotlib axes which can have xlims and ylims
     set to the desired levels.
@@ -94,30 +104,16 @@ def sierra_plot(
     # loop through as many steps as needed
 
     # # # Functionally not needed, but helps Shaded step function for Risk Difference confidence intervals
-    ax.fill_betweenx(
-        data[yvar],  # time column (no shift needed here)
-        data[ucl],  # upper confidence limit
-        data[lcl],  # lower confidence limit
-        label="95% CI",  # Sets the label in the legend
-        facecolor="k",  # Sets the color of the shaded region (k=black)
-        alpha=0.2,  # Sets the transparency of the shaded region
-        step="post",
-    )
+    STEP = 0.02
+    for a in np.arange(0.50, 0.95, STEP):
 
-    for a in np.arange(0.05, 0.5, 0.01):
-        df[a] = df.apply(
-            lambda x: normal_ppf_rd(location=x[xvar], scale=x["sd"], query=a), axis=1
-        )
-        df[a] = df[a].fillna(0)
-        df[1 - a] = df.apply(
-            lambda x: normal_ppf_rd(location=x[xvar], scale=x["sd"], query=(1 - a)),
-            axis=1,
-        )
-        df[1 - a] = df[1 - a].fillna(0)
+        (df[a], df[1 - a]) = norm_rd(a, location=df[xvar], scale=df["sd"])
+        df[a].fillna(0, inplace=True)
+        df[1 - a].fillna(0, inplace=True)
         ax.fill_betweenx(
-            df[yvar], df[1 - a], df[a], facecolor="k", alpha=0.02, step="post"
+            df[yvar], df[1 - a], df[a], facecolor="k", alpha=STEP, step="post"
         )
-
+    print(df.head())
     # Step function for Risk Difference
     ax.step(
         data[xvar],  # Risk Difference column
