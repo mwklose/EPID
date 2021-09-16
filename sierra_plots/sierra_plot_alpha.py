@@ -27,7 +27,9 @@ def norm_rd(
 def norm_rr(
     query: float, location: pd.Series, scale: pd.Series
 ) -> tuple[pd.Series, pd.Series]:
-    (q0, q1) = lognorm.interval(query, loc=location, scale=scale)
+    # There is 100% a way to do this with lognormal, but I do not know enough.
+    # General approach
+    (q0, q1) = lognorm.interval(query, s=scale, loc=location, scale=np.exp(location))
     return (pd.Series(q0), pd.Series(q1))
 
 
@@ -45,7 +47,7 @@ def sierra_plot(
     treat_labs=("Treatment", "Placebo"),
     treat_labs_top=True,
     treat_labs_spacing="\t\t\t",
-    interval_func: callable = norm,
+    interval_func=norm_rd,
 ):
     """Function to generate a twister plot from input data. Returns matplotlib axes which can have xlims and ylims
     set to the desired levels.
@@ -107,13 +109,12 @@ def sierra_plot(
     STEP = 0.02
     for a in np.arange(0.50, 0.95, STEP):
 
-        (df[a], df[1 - a]) = norm_rd(a, location=df[xvar], scale=df["sd"])
+        (df[a], df[1 - a]) = interval_func(a, location=df[xvar], scale=df["sd"])
         df[a].fillna(0, inplace=True)
         df[1 - a].fillna(0, inplace=True)
         ax.fill_betweenx(
             df[yvar], df[1 - a], df[a], facecolor="k", alpha=STEP, step="post"
         )
-    print(df.head())
     # Step function for Risk Difference
     ax.step(
         data[xvar],  # Risk Difference column

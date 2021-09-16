@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from sierra_plot_alpha import sierra_plot
+from sierra_plot_alpha import sierra_plot, norm_rd, norm_rr
 
 ##########################
 # Setup data
@@ -17,6 +17,7 @@ ax = sierra_plot(
     ucl="RD_UCL",
     yvar="t",
     treat_labs=["Vaccine", "Placebo"],
+    interval_func=norm_rd,
 )
 
 # Formatting the axes and labels
@@ -40,6 +41,7 @@ ax = sierra_plot(
     reference_line=1.0,
     log_scale=True,
     treat_labs=["Vaccine", "Placebo"],
+    interval_func=norm_rr,
 )
 
 # Formatting the axes and labels
