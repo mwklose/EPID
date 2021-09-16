@@ -12,7 +12,6 @@ import matplotlib
 from scipy.stats import norm, lognorm
 import seaborn as sns
 
-from typing import Union, Tuple  # Import union, tuple type hinting
 
 # Function that takes a query point and returns LCL and UCL for that percentile based on a risk-difference distribution (normal)
 def norm_rd(
@@ -20,7 +19,9 @@ def norm_rd(
 ) -> tuple[pd.Series, pd.Series]:
 
     (q0, q1) = norm.interval(query, loc=location, scale=scale)
-    return (pd.Series(q0), pd.Series(q1))
+    pd_q0 = pd.Series(q0).fillna(0)
+    pd_q1 = pd.Series(q1).fillna(0)
+    return pd_q0, pd_q1
 
 
 # Function that takes a query point and returns LCL and UCL for that percentile based on a risk-difference distribution (lognormal)
@@ -28,9 +29,20 @@ def norm_rr(
     query: float, location: pd.Series, scale: pd.Series
 ) -> tuple[pd.Series, pd.Series]:
     # There is 100% a way to do this with lognormal, but I do not know enough.
-    # General approach
-    (q0, q1) = lognorm.interval(query, s=scale, loc=location, scale=np.exp(location))
-    return (pd.Series(q0), pd.Series(q1))
+    # Extract information from given location and bastardized "sd"
+    df = pd.DataFrame()
+    df["ucl"] = (1.96 * scale) + location
+    # Define natural log of values, which then makes this into normal
+    df["ucl_ln"] = np.log(df["ucl"])
+    df["loc_ln"] = np.log(location)
+    df["sd_ln"] = (df["ucl_ln"] - df["loc_ln"]) / 1.96
+
+    # get the interval based on the p-value given by query
+    (ln_q0, ln_q1) = norm.interval(query, loc=df["loc_ln"], scale=df["sd_ln"])
+    # Since the above interval is given in terms of the log, raise e^{lower, upper} to get true value
+    pd_q0 = pd.Series(np.exp(ln_q0)).fillna(1)
+    pd_q1 = pd.Series(np.exp(ln_q1)).fillna(1)
+    return pd_q0, pd_q1
 
 
 ##########################
@@ -110,8 +122,6 @@ def sierra_plot(
     for a in np.arange(0.50, 0.95, STEP):
 
         (df[a], df[1 - a]) = interval_func(a, location=df[xvar], scale=df["sd"])
-        df[a].fillna(0, inplace=True)
-        df[1 - a].fillna(0, inplace=True)
         ax.fill_betweenx(
             df[yvar], df[1 - a], df[a], facecolor="k", alpha=STEP, step="post"
         )
