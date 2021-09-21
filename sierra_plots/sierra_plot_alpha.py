@@ -1,7 +1,8 @@
 ########################################################################################################################
-# Twister Plots
+# Sierra Plots
 #
 # Paul Zivich (2021/5/19)
+# Mark Klose (2021/9/16)
 ########################################################################################################################
 
 # Importing required dependencies
@@ -10,13 +11,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 from scipy.stats import norm, lognorm
-import seaborn as sns
 
 
 # Function that takes a query point and returns LCL and UCL for that percentile based on a risk-difference distribution (normal)
 def norm_rd(
     query: float, location: pd.Series, scale: pd.Series
-) -> tuple[pd.Series, pd.Series]:
+) -> tuple[pd.Series, pd.Series]:  # something up with type hinting right now
 
     (q0, q1) = norm.interval(query, loc=location, scale=scale)
     pd_q0 = pd.Series(q0).fillna(0)
@@ -27,7 +27,7 @@ def norm_rd(
 # Function that takes a query point and returns LCL and UCL for that percentile based on a risk-difference distribution (lognormal)
 def norm_rr(
     query: float, location: pd.Series, scale: pd.Series
-) -> tuple[pd.Series, pd.Series]:
+) -> tuple[pd.Series, pd.Series]:  # something up with type hinting right now
     # There is 100% a way to do this with lognormal, but I do not know enough.
     # Extract information from given location and bastardized "sd"
     df = pd.DataFrame()
@@ -116,15 +116,29 @@ def sierra_plot(
     df["sd"] = (data[ucl] - data[xvar]) / 1.96
 
     # loop through as many steps as needed
-
+    cmap = plt.get_cmap("gist_gray")
     # # # Functionally not needed, but helps Shaded step function for Risk Difference confidence intervals
-    STEP = 0.02
-    for a in np.arange(0.50, 0.95, STEP):
+    STEP = -0.01
 
-        (df[a], df[1 - a]) = interval_func(a, location=df[xvar], scale=df["sd"])
+    # for a in np.arange(0.999, 0.001, STEP):
+    for a in (
+        0.999999426696856,  # 5 SD
+        0.999936657516334,  # 4 SD
+        0.997300203936740,  # 3 SD
+        0.954499736103642,  # 2 SD
+        0.682689492137086,  # 1 SD
+        0.382924922548026,  # 0.5 SD
+    ):
+        (df[a], df[2 - a]) = interval_func(a, location=df[xvar], scale=df["sd"])
         ax.fill_betweenx(
-            df[yvar], df[1 - a], df[a], facecolor="k", alpha=STEP, step="post"
+            df[yvar],
+            df[2 - a],
+            df[a],
+            color=cmap(a),
+            alpha=1.1 - a,  # guarantees at least 0.1 alpha
+            step="post",
         )
+
     # Step function for Risk Difference
     ax.step(
         data[xvar],  # Risk Difference column
@@ -132,8 +146,9 @@ def sierra_plot(
         .shift(-1)
         .ffill(),  # time column (shift is to make sure steps occur at correct t
         # label="RD",  # Sets the label in the legend
-        color="k",  # Sets the color of the line (k=black)
+        color="w",  # Sets the color of the line (k=black)
         where="post",
+        lw=0.5,
     )
 
     # Draw reference

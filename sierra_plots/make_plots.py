@@ -6,15 +6,15 @@ from sierra_plot_alpha import sierra_plot, norm_rd, norm_rr
 ##########################
 # Setup data
 # Reading in data
-data = pd.read_csv("data_twister.csv")  # .csv read in and managed using pandas
+data = pd.read_csv("fake_data.csv")  # .csv read in and managed using pandas
 
 ##########################
 # Example: Difference
 ax = sierra_plot(
     data,
     xvar="RD",
-    lcl="RD_LCL",
-    ucl="RD_UCL",
+    lcl="RD_LCL_fake",
+    ucl="RD_UCL_fake",
     yvar="t",
     treat_labs=["Vaccine", "Placebo"],
     interval_func=norm_rd,
@@ -26,7 +26,7 @@ ax.set_yticks([i for i in range(0, 113, 7)])  # Sets the y-axes tick marks
 
 plt.tight_layout()  # Sets spacing of the border of the plot
 plt.savefig(
-    "sierra_plot_python.png", format="png", dpi=600
+    "sierra_plot_python_rd.png", format="png", dpi=600
 )  # Saves the generated figure as .png
 plt.show()  # displays the generated image
 
@@ -51,5 +51,29 @@ ax.set_xticks([0.1, 0.25, 1, 5, 10])  # Sets the x-axes tick marks
 ax.set_xticklabels(["0.10", "0.25", "1", "5", "10"])
 
 plt.tight_layout()  # Sets spacing of the border of the plot
-# plt.savefig("twister_plot_python.png", format='png', dpi=600)  # Saves the generated figure as .png
+plt.savefig(
+    "sierra_plot_python_rr.png", format="png", dpi=600
+)  # Saves the generated figure as .png
+plt.show()  # displays the generated image
+
+##########################
+# Example: "True" RD
+ax = sierra_plot(
+    data,
+    xvar="RD",
+    lcl="RD_LCL",
+    ucl="RD_UCL",
+    yvar="t",
+    treat_labs=["Vaccine", "Placebo"],
+    interval_func=norm_rd,
+)
+
+# Formatting the axes and labels
+ax.legend(loc="lower right")  # Added legend to the lower right corner of the plot
+ax.set_yticks([i for i in range(0, 113, 7)])  # Sets the y-axes tick marks
+
+plt.tight_layout()  # Sets spacing of the border of the plot
+plt.savefig(
+    "sierra_plot_python.png", format="png", dpi=600
+)  # Saves the generated figure as .png
 plt.show()  # displays the generated image
