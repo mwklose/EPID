@@ -118,7 +118,6 @@ def sierra_plot(
     # loop through as many steps as needed
     cmap = plt.get_cmap("gist_gray")
     # # # Functionally not needed, but helps Shaded step function for Risk Difference confidence intervals
-    STEP = -0.01
 
     # for a in np.arange(0.999, 0.001, STEP):
     for a in (
@@ -134,7 +133,7 @@ def sierra_plot(
             df[yvar],
             df[2 - a],
             df[a],
-            color=cmap(a),
+            color="k",
             alpha=1.1 - a,  # guarantees at least 0.1 alpha
             step="post",
         )
