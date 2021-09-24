@@ -12,7 +12,14 @@ import matplotlib.pyplot as plt
 import matplotlib
 from scipy.stats import norm, lognorm
 
-
+sd_dict = {
+    0.997300203936740: 3.0,
+    0.987580669348448: 2.5,  # 2.5 SD
+    0.954499736103642: 2.0,  # 2 SD
+    0.866385597462284: 1.5,  # 1.5 SD
+    0.682689492137086: 1.0,  # 1 SD
+    0.382924922548026: 0.5,  # 0.5 SD
+}
 # Function that takes a query point and returns LCL and UCL for that percentile based on a risk-difference distribution (normal)
 def norm_rd(
     query: float, location: pd.Series, scale: pd.Series
@@ -120,21 +127,15 @@ def sierra_plot(
     # # # Functionally not needed, but helps Shaded step function for Risk Difference confidence intervals
 
     # for a in np.arange(0.999, 0.001, STEP):
-    for a in (
-        0.999999426696856,  # 5 SD
-        0.999936657516334,  # 4 SD
-        0.997300203936740,  # 3 SD
-        0.954499736103642,  # 2 SD
-        0.682689492137086,  # 1 SD
-        0.382924922548026,  # 0.5 SD
-    ):
+    for a in sd_dict.keys():
         (df[a], df[2 - a]) = interval_func(a, location=df[xvar], scale=df["sd"])
         ax.fill_betweenx(
             df[yvar],
             df[2 - a],
             df[a],
-            color="k",
-            alpha=1.1 - a,  # guarantees at least 0.1 alpha
+            color=cmap(sd_dict[a] / 3),
+            alpha=1,
+            label=f"{100 * a: 2.2f}% CI ({sd_dict[a]} SEs)",
             step="post",
         )
 
