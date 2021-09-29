@@ -31,7 +31,6 @@
     - Letter: summarizing of alternative ways to express confidence intervals, break away from interval+point paradigm/understanding?
         - Expected pushback: how to decide shaded at what point?
             - 
-    - Screwups: 0.5--> .95 not truly representative 
     - Descent of gradient sharper? 
         - Triple standard error for working for example
         - So maybe in cases with low SE, this plot not best option?
@@ -48,6 +47,9 @@
         - Closed form analytic, simulation approach
 
     - Before: assumed constant across W (same population), but what if population changes, W different in two settings (transportability/generalizability problem)
+
+
+
 
 ## Agenda:
     - Ultimate purpose:
