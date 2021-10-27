@@ -213,6 +213,6 @@ sierra_plot(
   yvar = t,
   treat_labs = c("Vaccine", "Control"),
   reference_line = 1.0,
-  step=0.1,
+  step=0.01,
   log_scale = TRUE
 )
