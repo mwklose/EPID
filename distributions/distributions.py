@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import itertools
 from scipy.stats import norm
 
-STEPS = 100000
+STEPS = 10000
 
 
 def make_data(m1: float = 1, v1: float = 1, m2: float = 1, v2: float = 1):
@@ -33,7 +33,7 @@ plt.style.use("ggplot")
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 
 
-df_dist, df_div = make_data(5, 1, 10, 1)
+df_dist, df_div = make_data(5, 1, 15, 2)
 
 
 ax1.hist(
@@ -49,12 +49,12 @@ ax2.hist(
 ax3.hist(
     df_div["div"],
     bins=STEPS // 50,
-    label=f"Mean={df_div['div'].mean(): 2.2f}, SD={df_div['div'].std(): 2.2f} ({df_div['div'].quantile(0.05): 2.2f}, {df_div['div'].quantile(0.95): 2.2f})",
+    label=f"Mean={df_div['div'].mean(): 2.2f}, SD={df_div['div'].std(): 2.2f} ({df_div['div'].quantile(0.05): 2.2f}, {df_div['div'].quantile(0.5): 2.2f}, {df_div['div'].quantile(0.95): 2.2f})",
 )
 ax4.hist(
     df_div["times"],
     bins=STEPS // 50,
-    label=f"Mean={df_div['times'].mean(): 2.2f}, SD={df_div['times'].std(): 2.2f} ({df_div['times'].quantile(0.05): 2.2f}, {df_div['times'].quantile(0.95): 2.2f})",
+    label=f"Mean={df_div['times'].mean(): 2.2f}, SD={df_div['times'].std(): 2.2f} ({df_div['times'].quantile(0.05): 2.2f}, {df_div['times'].quantile(0.5): 2.2f}, {df_div['times'].quantile(0.95): 2.2f})",
 )
 
 

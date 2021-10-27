@@ -1,5 +1,49 @@
 # Meetings.MD
+## Sep 30th meeting
+    - Review of Sierra Plots
+        - Updated pictures, makes better sense, more interpretable?
+        - Case when plateau: SE show better?
+    - Letter
+        - Alternative ways to visualize confidence intervals
+            - ex1
+            - ex2
+    - Distributions:
+        - Dividing two: ratio distribution (Cauchy Distribution special case)
+            - Found that always slightly above expectation?
+        - Multiplying two: product distribution
+            - Found that always slightly below expectation (but less so)
+            - https://en.wikipedia.org/wiki/Distribution_of_the_product_of_two_random_variables
+                - "extra stuff"
+    Meet:
+    - Sierra Plots
+        - Go back to pure coloring/scale
+            - 3x as much
+            - Smooth scaling
+                - Write in Python+one more
+        - Letter: 600 words max, AJE and Epidemiology
+            - Epidemiology: most recent issue, look for Kaplan Meier curves, Risk Difference function by time, 
+            - Letter say: descriptions: turn, cite Paul, degradation of random error, generalize P-value plot to time. 
 
+    - Next things:
+        - Attributable Fractions? Exploration/writeup: how to make inference - Bootstrap, Delta Method (data fusion), 
+
+        - Lead: data repository, datasets+code book (short piece to advertise space), count as practicum
+            - Build contributory trials
+
+        - Daniel: Causal Consistency assumption, (710, 715), 
+
+        - Baric:
+            - Herd immunity + interference
+                - Difficult without potential outcomes
+            - Herd immunity + interference of COVID19 (Halloran's work)
+            - Modern take on Herd Immunity, Interference
+
+            Main ideas: 
+            - Therapeutic antibodies: role in controlling COVID19 pathogenesis.
+            - Paramyxovirus genus Henipavirus: Emerging Disease Potential.
+
+            - Follow structure pretty straightforward
+            - 
 ## Sep 16th meeting
     - Review of Sierra Plots
         - Questions from last time:

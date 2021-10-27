@@ -107,7 +107,7 @@ def twister_plot(data, xvar, lcl, ucl, yvar, xlab="Risk Difference", ylab="Days"
 
     ax.set_xlabel(xlab,  # Sets the x-axis main label (bottom label)
                   fontdict={"size": 11,  # "weight": "bold"
-                            })
+                          #6eb46c  })
     return ax
 
 
